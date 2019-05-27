@@ -113,7 +113,6 @@ def get_schema(topic):
         Avro schema as a string object in JSON format
     """
     method = constants.HTTP_CONFIG.HTTP_GET
-    connection = util._get_http_connection(https=True)
     resource_url = constants.DELIMITERS.SLASH_DELIMITER + \
                    constants.REST_CONFIG.HOPSWORKS_REST_RESOURCE + constants.DELIMITERS.SLASH_DELIMITER + \
                    constants.REST_CONFIG.HOPSWORKS_PROJECT_RESOURCE + constants.DELIMITERS.SLASH_DELIMITER + \
@@ -121,7 +120,4 @@ def get_schema(topic):
                    constants.REST_CONFIG.HOPSWORKS_KAFKA_RESOURCE + constants.DELIMITERS.SLASH_DELIMITER + \
                    topic + constants.DELIMITERS.SLASH_DELIMITER + \
                    constants.REST_CONFIG.HOPSWORKS_SCHEMA_RESOURCE
-    response = util.send_request(connection, method, resource_url)
-    resp_body = response.read()
-    response_object = json.loads(resp_body)
-    return response_object
+    return util.send_request_with_session(method, resource_url)

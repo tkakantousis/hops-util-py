@@ -17,9 +17,10 @@ from hops import version
 from hops import constants
 import ssl
 
-#! Needed for hops library backwards compatability
+#! Needed for hops library backwards compatibility
 try:
     import requests
+    from requests import Request
 except:
     pass
 import pydoop.hdfs
@@ -186,6 +187,38 @@ def send_request(connection, method, resource, body=None, headers=None):
         headers[constants.HTTP_CONFIG.HTTP_AUTHORIZATION] = "Bearer " + get_jwt()
         connection.request(method, resource, body, headers)
         response = connection.getresponse()
+    return response
+
+
+def send_request_with_session(method, resource, data=None, headers=None):
+    """
+    Sends a request to Hopsworks over HTTPS. In case of Unauthorized response, submit the request once more as jwt
+    might not have been read properly from local container.
+
+    Args:
+        method: request method
+        resource: Hopsworks request url
+        data: request data payload
+        headers: request headers
+
+    Returns:
+        HTTPS response
+    """
+
+    if headers is None:
+        headers = {}
+    headers[constants.HTTP_CONFIG.HTTP_AUTHORIZATION] = "Bearer " + get_jwt()
+    session = requests.session()
+    host_port_pair = _get_host_port_pair()
+    url = host_port_pair[0] + host_port_pair[1] + "/" + resource
+    req = Request(method, url, data=data, headers=headers)
+    prepped = session.prepare_request(req)
+    response = session.send(prepped, verify=False)
+
+    if response.status_code == constants.HTTP_CONFIG.HTTP_UNAUTHORIZED:
+        req.headers[constants.HTTP_CONFIG.HTTP_AUTHORIZATION] = "Bearer " + get_jwt()
+        prepped = session.prepare_request(req)
+        response = session.send(prepped)
     return response
 
 

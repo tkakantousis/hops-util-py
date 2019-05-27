@@ -55,6 +55,20 @@ def get_trust_store():
     return str(_get_trust_store_path())
 
 
+def _get_domain_ca_truststore_path():
+    """
+    Get domain ca truststore location
+
+    Returns:
+        domain ca truststore location
+    """
+    return Path(constants.SSL_CONFIG.DOMAIN_CA_TRUSTSTORE)
+
+
+def get_domain_ca_truststore():
+    return str(_get_domain_ca_truststore_path())
+
+
 def _get_cert_pw():
     """
     Get keystore password from local container
@@ -177,6 +191,7 @@ def _write_pem(jks_key_store_path, jks_trust_store_path, keystore_pw, client_key
     :client_key_cert_path: path to write the client's certificate for its private key in PEM format
     :client_key_path: path to write the client's private key in PEM format
     :ca_cert_path: path to write the chain of CA certificates required to validate certificates
+    :domain_ca_truststore_path:
     """
     keystore_key_cert, keystore_key, keystore_ca_cert = _convert_jks_to_pem(jks_key_store_path, keystore_pw)
     truststore_key_cert, truststore_key, truststore_ca_cert = _convert_jks_to_pem(jks_trust_store_path, keystore_pw)
@@ -237,10 +252,12 @@ def _write_pems():
     Converts JKS keystore file into PEM to be compatible with Python libraries
     """
     t_jks_path = get_trust_store() 
-    k_jks_path = get_key_store() 
+    k_jks_path = get_key_store()
+    domain_ca_truststore_path = get_domain_ca_truststore()
 
     client_certificate_path = Path(constants.SSL_CONFIG.PEM_CLIENT_CERTIFICATE_CONFIG)
     client_key_path = Path(constants.SSL_CONFIG.PEM_CLIENT_KEY_CONFIG)
     ca_chain_path = Path(constants.SSL_CONFIG.PEM_CA_CHAIN_CERTIFICATE_CONFIG)
 
-    _write_pem(k_jks_path, t_jks_path, get_key_store_pwd(), client_certificate_path, client_key_path, ca_chain_path)
+    _write_pem(k_jks_path, t_jks_path, get_key_store_pwd(), client_certificate_path, client_key_path, ca_chain_path,
+               domain_ca_truststore_path)
