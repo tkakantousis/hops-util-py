@@ -206,8 +206,8 @@ def get_requests_verify(hostname, port):
         try:
             commonname = crypto_cert.subject.get_attributes_for_oid(NameOID.COMMON_NAME)[0].value
             issuer = crypto_cert.issuer.get_attributes_for_oid(NameOID.COMMON_NAME)[0].value
-            if commonname == issuer and constants.ENV_VARIABLES.DOMAIN_CA_TRUSTSTORE_PEM_ENV_VAR in os.environ:
-                return os.environ[constants.ENV_VARIABLES.DOMAIN_CA_TRUSTSTORE_PEM_ENV_VAR]
+            if commonname == issuer and constants.ENV_VARIABLES.DOMAIN_CA_KEYSTORE_PEM_ENV_VAR in os.environ:
+                return os.environ[constants.ENV_VARIABLES.DOMAIN_CA_KEYSTORE_PEM_ENV_VAR]
             else:
                 return True
         except x509.ExtensionNotFound:
